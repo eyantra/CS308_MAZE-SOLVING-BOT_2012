@@ -1,0 +1,156 @@
+#include "astar.cpp"
+#include <cstring>
+#include <stdio.h>
+#include <unistd.h>
+#include <time.h>
+#include <libplayerc++/playerc++.h>
+#include "bfs.cpp"
+
+      PlayerClient    robot("localhost", 6665);
+
+      Position2dProxy p2dProxy(&robot,0);
+      SonarProxy      sonarProxy(&robot,0);
+      
+      double forwardSpeed, turnSpeed;
+
+      
+    
+typedef pair<int,int> _pair;
+class puzzle_mn : public node<int, string>
+{
+public:
+
+  static _pair goal;
+  _pair config;
+
+  void setkey(){
+    key="";
+    char c[10];
+    sprintf(c,"%d:%d",config.first,config.second); key+=string(c);
+  }
+  
+  puzzle_mn(_pair _start,_pair _end)
+  {
+    goal=_end;
+    config=_start; 
+    setkey();
+    h = heuristic();
+    g = INT_MAX;
+  }
+
+  puzzle_mn(int x,int y)
+  { 
+    config.first=x;config.second=y;
+    setkey();
+    h = heuristic();
+    g = INT_MAX;
+  }
+  
+
+
+  int heuristic(){
+#if ZERO
+    return 0;
+#endif
+    return manhattan();
+  }
+  int manhattan(){
+    return abs(config.first-goal.first)+abs(config.second-goal.second);
+  }
+    
+      
+  bool
+  isgoal()
+  {
+    if(config.first==goal.first && config.second==goal.second){
+    return true;
+    }
+    return false;
+  }
+  
+#define create(x,y)   puzzle_mn *p =new puzzle_mn(x,y);
+#define set_next neighbours.push_back(pair<node<int,string>*,int>(p,1))
+#define rot90    p2dProxy.SetSpeed(0, dtor(90)); sleep(1);p2dProxy.SetSpeed(0, dtor(0));
+#define movef    p2dProxy.SetSpeed(1, dtor(0)); sleep(1);p2dProxy.SetSpeed(0, dtor(0));sleep(2);
+  typedef pair<node<int, string>*,int> edge;
+  void
+  expand()
+  {
+
+
+      //request geometries
+      p2dProxy.RequestGeom();
+      sonarProxy.RequestGeom();
+      //blobfinder doesn't have geometry
+	
+      /*here so that laserProxy[90] doesn't segfault on first loop*/
+      robot.Read();
+        printf("%f %f \n",p2dProxy.GetXPos(),p2dProxy.GetYPos());
+        path(0,0,2,2);
+        for(int i=0;i<Path->size();i++){
+        	printf("%d %d \n",Path[i]->first,Path[i]->second);
+        }
+        //create(config.first+1,config.second+1);set_next;
+  /*     while(true)
+      {		
+            // read from the proxies
+            robot.Read();
+	    if(sonarProxy[1]<.3 || true){
+            rot90;
+            sleep(2);
+            }
+            else{
+            printf("%f %f %f %f %f %f\n",p2dProxy.GetXPos(),p2dProxy.GetYPos(),sonarProxy[0],sonarProxy[1],sonarProxy[2],sonarProxy[3]);
+            //movef;
+            }
+            
+      }*/
+    
+  }
+  
+#undef set_next
+#undef create
+#undef rot90
+#undef movef
+};
+
+
+
+
+
+_pair puzzle_mn::goal;
+template<>
+int node<int, string>::count = 0;
+template<>
+int node<int, string>::expandcount = 0;
+//////////////////////////////
+int g=0;
+//////////////////////////////
+int main()
+{ /*
+    int start[12]={1,2,0,3,5,6,7,4,9,10,11,8};
+    int end[12]={1,2,3,4,5,6,7,8,9,10,11,0};
+  */
+        p2dProxy.SetMotorEnable(1);
+  using namespace std;
+  init();
+  _pair start(0,0);
+  _pair end(8,8);
+  puzzle_mn p = puzzle_mn(start,end);
+  if(true){
+    puzzle_mn* l = dynamic_cast<puzzle_mn*>(astar<int, string>(&p));
+    printf("yes\n");
+    while (l != NULL)
+      { 
+
+	cout<<endl;
+	l = dynamic_cast<puzzle_mn*>(l->parentptr);
+      }
+    printf("nodes created:%d\n",p.count);
+    printf("nodes expanded:%d\n",p.expandcount);
+  }
+  else{
+    cout<<"goal nt reachable\n";
+  }
+}
+

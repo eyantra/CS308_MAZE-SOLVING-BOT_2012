@@ -1,0 +1,55 @@
+Maze solving:
+
+The movements get stored as followed:
+
+left turn = “L”
+right turn = “R”
+turn around = “B”
+go straight = “S”
+
+These 3 letter sequences are as follows:
+
+LBR = B
+LBS = R
+RBL = B
+SBL = R
+SBS = B
+LBL =  S 
+
+Example,
+
+Using the left hand on the wall algorithm, here is the path the robot would take:
+LLLBLLLRBLLBSRSRS 
+
+Now here is the process of shortening that path:
+LL(LBL = S)LL(RBL = B)(LBS = R)RSRS
+
+The new path would be:
+LLSLLBRRSRS
+
+Continue shortening it until all the “B”s are gone:
+LLSL(LBR = B)RSRS
+
+The new path would be:
+LLSLBRSRS
+
+Continue shortening it:
+LLS(LBR = B)SRS
+
+The new path would be:
+LLSBSRS
+
+Continue shortening it:
+LL(SBS = B)RS
+
+The new path would be:
+LLBRS
+
+Continue shortening it:
+L(LBR = B)S
+
+The new path would be:
+LBS 
+
+The final path is:
+LBS = R

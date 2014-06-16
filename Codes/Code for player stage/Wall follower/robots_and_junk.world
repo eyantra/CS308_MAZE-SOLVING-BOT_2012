@@ -1,0 +1,32 @@
+# populated world for Bigbob robot
+# Author: Jennifer Owen
+# Date: 16/04/2010
+
+include "map.inc"
+include "bigbob.inc"
+
+
+# configure the GUI window
+window
+( 
+	size [1000.000 1000.000] 
+	scale 40
+)
+
+
+# load an environment bitmap
+floorplan
+(
+	bitmap "./bitmaps/Grid.png" 
+	size [10 10 1.5]
+)
+
+bigbob
+(
+	name "bob1" 
+	pose [-4.5 -4.5 0 0] 
+	color "green"
+)
+
+
+
